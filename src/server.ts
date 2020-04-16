@@ -88,32 +88,20 @@ export class Server {
             pdfparse(pdffile).then(function(data){
                 console.log(data.numpages);
                 let filetxt = data.text;
-              
-                // var re = new RegExp("(.*?)\s*=\s*([^\s]+)");
-                // let kak = filetxt.match("(.*?)\s*=\s*([^\s]+)");
-                let ParsedText = filetxt.split("\n");
-                Object.keys(ParsedText).forEach(function(key) {
-                    ParsedText[key].split(",");
+                let SplittedTxt = filetxt.split("\n");
+                Object.keys(SplittedTxt).forEach(function(key) {
+                    var hi = SplittedTxt[key].split(",").toString();
                     let arr = [];
-                    if(ParsedText[key].match("(.*?)\s*=\s*([^\s]+)")){
-                        // console.log(ParsedText[key]);
-                        arr.push(ParsedText[key].split("="));
-                        let json = {
-                           
-                        }
-                        
-                    }
-                    console.log(arr);
+                    if(SplittedTxt[key].match("(.*?)\s*=\s*([^\s]+)")){
+                        arr.push(hi.split("="));
+                        var keyData = arr[0][0];
+                        var valueData = arr[0][1].split(",")[0];
+                        var ObjectToDB = {[keyData]: valueData};
+                        console.log(ObjectToDB);
+                        let setDoc = db.collection('parsed').doc('doc' + key).set(ObjectToDB);
+                        console.log("inserted");
+                    }      
                   });
-            
-                // console.log(kaki);
-                
-                // if (re.test(term)) {
-                //     console.log(JSON.stringify(term));
-                // } else {
-                //     console.log("Invalid");
-                // }
-                
                 })
             });
         }
