@@ -8,14 +8,9 @@ import * as fs from "fs";
 import * as firebase from 'firebase';
 import * as admin from 'firebase-admin';
 import * as pdfparse from 'pdf-parse';
-import * as PdfReader from 'pdfreader';
-
-
-
 const service = require("../fireconfig.json");
 const port = 3000;
 const testFolder = '../uploads';
-
 
 
 export class Server {
@@ -38,11 +33,12 @@ export class Server {
 
         admin.initializeApp({
             credential: admin.credential.cert(service),
-            databaseURL: "https://beta-56978.firebaseio.com"
+            databaseURL: "https://beta-56978.firebaseio.com",
+            storageBucket: "gs://beta-56978.appspot.com/"
           });
 
         const db = admin.firestore();
-        var firebaseConfig = {
+        const firebaseConfig = {
             apiKey: "AIzaSyC7ruWcxShnzukFlMp1NgS7FfSk4fchjdE",
             authDomain: "beta-56978.firebaseapp.com",
             databaseURL: "https://beta-56978.firebaseio.com",
@@ -53,9 +49,10 @@ export class Server {
             measurementId: "G-GD1GJPBVLL"
           };
           firebase.initializeApp(firebaseConfig);
+        
+          const bucket = admin.storage().bucket();
 
 
-        //Upload files request 'POST'
         this.app.post('/upload', function(req, res) {
                 const busboy = Busboy({ headers: req.headers });
                 busboy.on("file", function (fieldname, file, filename, encoding, mimetype) {
@@ -69,24 +66,18 @@ export class Server {
           });
 
           
-          this.app.get('/insrtDB', function (req, res) {
-            console.log("HTTP Get Request");
-            let data = {
-                name: 'Los Angeles',
-                state: 'CA',
-                country: 'USA'
-              };
-              let setDoc = db.collection('todo').doc('PDF').set(data);
-              res.send("kk");
-              
+        this.app.get('/insertDB', function (req, res) {
+            parsingPDF();
+            res.send("files inserted!")
         });
 
-
-        function parsingPDF(){
-        fs.readdirSync(testFolder).forEach(file => {
-           let pdffile = fs.readFileSync(testFolder + '/' + file);
+        function parsingPDF(){         
+            fs.readdirSync(testFolder).forEach(file => {
+            var pdffile = fs.readFileSync(testFolder + '/' + file);
+            var filename = path.basename(file);
+            bucket.upload(testFolder + '/' + file);
+            console.log(filename);
             pdfparse(pdffile).then(function(data){
-                console.log(data.numpages);
                 let filetxt = data.text;
                 let SplittedTxt = filetxt.split("\n");
                 Object.keys(SplittedTxt).forEach(function(key) {
@@ -98,23 +89,16 @@ export class Server {
                         var valueData = arr[0][1].split(",")[0];
                         var ObjectToDB = {[keyData]: valueData};
                         console.log(ObjectToDB);
-                        let setDoc = db.collection('parsed').doc('doc' + key).set(ObjectToDB);
-                        console.log("inserted");
+                        let setDoc = db.collection('kak').doc('doc' + key).set(ObjectToDB);
+                    }
+                    else{
+                        console.log("cant parsing the file: " + file);
+                        return;
                     }      
                   });
                 })
-            });
+            }); 
         }
-        parsingPDF();
-
-        
-
-     
-
-       
-
-       
-    
     }
     public close() {
         this.server.close();
