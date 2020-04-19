@@ -14,6 +14,7 @@ var Server = /** @class */ (function () {
         this.server.listen(config_1.config.port, function () {
             console.log("Server running on port " + config_1.config.port);
         });
+        // DbManager.ReadCollection(); - read and log all docs of the collection
     }
     Server.bootstrap = function () {
         return new Server();

@@ -2,8 +2,8 @@ import * as path from "path";
 import * as fs from "fs";
 import * as pdfparse from 'pdf-parse';
 import { config } from '../envrironments/config';
-import * as DbManager from './firebaseManager';
-
+import * as DbManager from '../utils/firebaseManager';
+var canParse = 0;
 
 export function parsing (pdffile, file) {
     pdfparse(pdffile).then(function(data){
@@ -18,22 +18,22 @@ export function parsing (pdffile, file) {
                 var valueData = arr[0][1].split(",")[0];
                 var ObjectToDB = {[keyData]: valueData};
                 console.log(ObjectToDB);
+                canParse++;
                 DbManager.DBinsertDocs(config.collectionName, key, ObjectToDB);
-            }
-            else{
-                return;
-            }      
+            }     
         });
     })
+    if(canParse == 0){
+        console.log("Can`t parse the file " + file);
+        console.log(canParse);
+    }
 }
 
 export function getFilesAndParse(){ 
     try {    
         fs.readdirSync(config.testFolder).forEach(file => {
         var pdffile = fs.readFileSync(config.testFolder + '/' + file);
-        var filename = path.basename(file);
         DbManager.BucketInsert(config.testFolder, file);
-        console.log(filename);
         parsing (pdffile, file);
         }); 
     }

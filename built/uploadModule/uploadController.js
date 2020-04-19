@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-var parser = require("./parser");
+var parser = require("../parserModule/parser");
 var Busboy = require("busboy");
 var path = require("path");
 var fs = require("fs");
@@ -20,7 +20,7 @@ var UploadController = /** @class */ (function () {
         req.pipe(busboy);
     };
     UploadController.insertFiles = function (req, res) {
-        parser.parsingPDF();
+        parser.getFilesAndParse();
         res.send("files inserted to DB!");
     };
     return UploadController;

@@ -1,12 +1,11 @@
 "use strict";
 exports.__esModule = true;
-var path = require("path");
 var fs = require("fs");
 var pdfparse = require("pdf-parse");
 var config_1 = require("../envrironments/config");
-var DbManager = require("./firebaseManager");
+var DbManager = require("../utils/firebaseManager");
+var canParse = 0;
 function parsing(pdffile, file) {
-    var canParse = [];
     pdfparse(pdffile).then(function (data) {
         var filetxt = data.text;
         var SplittedTxt = filetxt.split("\n");
@@ -20,24 +19,21 @@ function parsing(pdffile, file) {
                 var valueData = arr[0][1].split(",")[0];
                 var ObjectToDB = (_a = {}, _a[keyData] = valueData, _a);
                 console.log(ObjectToDB);
+                canParse++;
                 DbManager.DBinsertDocs(config_1.config.collectionName, key, ObjectToDB);
-            }
-            else {
-                return;
             }
         });
     });
-    if (canParse.length == 0) {
+    if (canParse == 0) {
         console.log("Can`t parse the file " + file);
+        console.log(canParse);
     }
-    canParse = [];
 }
 exports.parsing = parsing;
 function getFilesAndParse() {
     try {
         fs.readdirSync(config_1.config.testFolder).forEach(function (file) {
             var pdffile = fs.readFileSync(config_1.config.testFolder + '/' + file);
-            var filename = path.basename(file);
             DbManager.BucketInsert(config_1.config.testFolder, file);
             parsing(pdffile, file);
         });

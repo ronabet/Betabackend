@@ -31,3 +31,16 @@ export function DBinsertDocs(collectionName: string, key: string, ObjectToDB: ob
 export function BucketInsert(testFolder: string, file: string){
     bucket.upload(testFolder + '/' + file);
 }
+
+export async function ReadCollection(){
+    let citiesRef = db.collection('parsed');
+    let allCities = citiesRef.get()
+    .then(snapshot => {
+    snapshot.forEach(doc => {
+      console.log(doc.id, '=>', doc.data());
+    });
+    })
+     .catch(err => {
+    console.log('Error getting documents', err);
+  });
+}
