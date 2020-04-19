@@ -22,7 +22,6 @@ function parsing(pdffile, file) {
                 DbManager.DBinsertDocs(config_1.config.collectionName, key, ObjectToDB);
             }
             else {
-                console.log("Can`t parsing the file: " + file);
                 return;
             }
         });
@@ -30,12 +29,17 @@ function parsing(pdffile, file) {
 }
 exports.parsing = parsing;
 function getFilesAndParse() {
-    fs.readdirSync(config_1.config.testFolder).forEach(function (file) {
-        var pdffile = fs.readFileSync(config_1.config.testFolder + '/' + file);
-        var filename = path.basename(file);
-        DbManager.BucketInsert(config_1.config.testFolder, file);
-        console.log(filename);
-        parsing(pdffile, file);
-    });
+    try {
+        fs.readdirSync(config_1.config.testFolder).forEach(function (file) {
+            var pdffile = fs.readFileSync(config_1.config.testFolder + '/' + file);
+            var filename = path.basename(file);
+            DbManager.BucketInsert(config_1.config.testFolder, file);
+            console.log(filename);
+            parsing(pdffile, file);
+        });
+    }
+    catch (err) {
+        throw err;
+    }
 }
 exports.getFilesAndParse = getFilesAndParse;

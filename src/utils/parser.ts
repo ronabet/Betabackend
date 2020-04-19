@@ -21,19 +21,23 @@ export function parsing (pdffile, file) {
                 DbManager.DBinsertDocs(config.collectionName, key, ObjectToDB);
             }
             else{
-                console.log("Can`t parsing the file: " + file);
                 return;
             }      
         });
     })
 }
 
-export function getFilesAndParse(){         
-    fs.readdirSync(config.testFolder).forEach(file => {
-    var pdffile = fs.readFileSync(config.testFolder + '/' + file);
-    var filename = path.basename(file);
-    DbManager.BucketInsert(config.testFolder, file);
-    console.log(filename);
-    parsing (pdffile, file);
-    }); 
+export function getFilesAndParse(){ 
+    try {    
+        fs.readdirSync(config.testFolder).forEach(file => {
+        var pdffile = fs.readFileSync(config.testFolder + '/' + file);
+        var filename = path.basename(file);
+        DbManager.BucketInsert(config.testFolder, file);
+        console.log(filename);
+        parsing (pdffile, file);
+        }); 
+    }
+    catch(err){
+        throw err;
+    }
 }
